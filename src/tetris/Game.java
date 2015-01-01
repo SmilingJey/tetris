@@ -296,7 +296,7 @@ public class Game {
             if (now_level < 8) {
                 tic.time = level[now_level - 1];
             }
-            Mainframe.instanes.set_labels(score, lines, now_level);
+            Mainframe.getInstance().set_labels(score, lines, now_level);
         }
 
     }
@@ -342,8 +342,8 @@ public class Game {
         time.start();
         score = 0;
         lines = 0;
-        Mainframe.instanes.set_record();
-        Mainframe.instanes.set_labels(score, lines, now_level);
+        Mainframe.getInstance().set_record();
+        Mainframe.getInstance().set_labels(score, lines, now_level);
         Game_canvas.instanes.draw_all();
         Next_figura.instanes.repaint();
     }

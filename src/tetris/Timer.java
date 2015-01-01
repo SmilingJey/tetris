@@ -22,7 +22,7 @@ public class Timer extends Thread {
                             h++;
                         }
                     }
-                    Mainframe.instanes.set_time(h, m, s);
+                    Mainframe.getInstance().set_time(h, m, s);
                 }
             }
         } catch (InterruptedException e) {

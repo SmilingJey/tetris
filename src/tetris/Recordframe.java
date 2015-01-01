@@ -166,7 +166,7 @@ public class Recordframe extends JDialog {
         sort_rec();
         min_rec = rec[19];
         max_rec = rec[0];
-        Mainframe.instanes.set_record();
+        Mainframe.getInstance().set_record();
         for (int j = 0; j < 20; j++) {
             name_rec[j] = "" + name[j] + "     " + rec[j];
         }

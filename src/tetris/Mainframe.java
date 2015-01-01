@@ -9,7 +9,6 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import java.awt.Color;
-import java.awt.Canvas;
 import javax.swing.BorderFactory;
 import java.awt.Point;
 import java.net.URL;
@@ -19,7 +18,7 @@ import javax.swing.SwingConstants;
 public class Mainframe extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    public static Mainframe instanes;
+    private static Mainframe instance;
     private JPanel jContentPane = null;
     private JPanel jPanel = null;
     private JPanel jPanel_info = null;
@@ -33,20 +32,20 @@ public class Mainframe extends JFrame {
     private JLabel jLabel_record = null;
     private JLabel jLabel_lines = null;
 
-    /**
-     * This is the default constructor
-     */
-    public Mainframe() {
+    private Mainframe() {
         super();
-        instanes = this;
         initialize();
     }
+    
+    public static Mainframe getInstance()
+    {
+        if (instance == null)
+        {
+            instance = new Mainframe();
+        }
+        return instance;
+    }
 
-    /**
-     * This method initializes this
-     *
-     * @return void
-     */
     private void initialize() {
         this.setSize(320, 400);
         this.setMinimumSize(new Dimension(320, 400));
@@ -54,16 +53,14 @@ public class Mainframe extends JFrame {
         URL url = this.getClass().getResource("res/icon.png");
         ImageIcon image = new ImageIcon(url);
         setIconImage(image.getImage());
-        this.setTitle("JTetris");
+        this.setTitle("Tetris");
         this.addWindowListener(new java.awt.event.WindowAdapter() {
-
             public void windowClosing(java.awt.event.WindowEvent e) {
                 System.exit(0);
             }
         });
 
         Game_canvas.instanes.repaint();
-
     }
 
     /**
