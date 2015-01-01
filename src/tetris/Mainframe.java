@@ -37,8 +37,7 @@ public class Mainframe extends JFrame {
         initialize();
     }
     
-    public static Mainframe getInstance()
-    {
+    public static Mainframe getInstance() {
         if (instance == null)
         {
             instance = new Mainframe();
