@@ -20,9 +20,6 @@ public class SaveRecordDialog extends JDialog {
     private JTextField jTextField = null;
     private JLabel jLabel = null;
 
-    /**
-     * @param owner
-     */
     public SaveRecordDialog(Frame owner) {
         super(owner);
         initialize();
@@ -35,11 +32,6 @@ public class SaveRecordDialog extends JDialog {
         setVisible(true);
     }
 
-    /**
-     * This method initializes this
-     *
-     * @return void
-     */
     private void initialize() {
         this.setSize(330, 94);
         this.setContentPane(getJContentPane());
@@ -60,11 +52,6 @@ public class SaveRecordDialog extends JDialog {
         });
     }
 
-    /**
-     * This method initializes jContentPane
-     *
-     * @return javax.swing.JPanel
-     */
     private JPanel getJContentPane() {
         if (jContentPane == null) {
             jLabel = new JLabel();
@@ -79,11 +66,6 @@ public class SaveRecordDialog extends JDialog {
         return jContentPane;
     }
 
-    /**
-     * This method initializes jButton_save
-     *
-     * @return javax.swing.JButton
-     */
     private JButton getJButton_save() {
         if (jButton_save == null) {
             jButton_save = new JButton();
@@ -93,7 +75,7 @@ public class SaveRecordDialog extends JDialog {
             jButton_save.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     Recordframe.instance.add_rec(jTextField.getText() != null ? jTextField.getText() : "",
-                            Game.instanes.score);
+                            Game.getInstance().score);
                     setVisible(false);
                 }
             });
@@ -101,11 +83,6 @@ public class SaveRecordDialog extends JDialog {
         return jButton_save;
     }
 
-    /**
-     * This method initializes jTextField
-     *
-     * @return javax.swing.JTextField
-     */
     private JTextField getJTextField() {
         if (jTextField == null) {
             jTextField = new JTextField();
@@ -116,4 +93,4 @@ public class SaveRecordDialog extends JDialog {
         return jTextField;
     }
 
-}  //  @jve:decl-index=0:visual-constraint="16,16"
+}

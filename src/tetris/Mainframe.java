@@ -16,11 +16,10 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 
 public class Mainframe extends JFrame {
-
     private static final long serialVersionUID = 1L;
     private static Mainframe instance;
     private JPanel jContentPane = null;
-    private JPanel jPanel = null;
+    private PlayingPanel playingPanel = null;
     private JPanel jPanel_info = null;
     private JPanel jPanel1 = null;
     private JLabel jLabel = null;
@@ -31,25 +30,28 @@ public class Mainframe extends JFrame {
     private JToggleButton jToggleButton_pause = null;
     private JLabel jLabel_record = null;
     private JLabel jLabel_lines = null;
-
+    
     private Mainframe() {
         super();
         initialize();
     }
-    
+
     public static Mainframe getInstance() {
-        if (instance == null)
-        {
+        if (instance == null) {
             instance = new Mainframe();
         }
         return instance;
     }
 
+    public void redrawPlayingPanel(){
+        playingPanel.draw_all();
+    }
+    
     private void initialize() {
         this.setSize(320, 400);
         this.setMinimumSize(new Dimension(320, 400));
         this.setContentPane(getJContentPane());
-        URL url = this.getClass().getResource("res/icon.png");
+        URL url = this.getClass().getResource("res/icon2.png");
         ImageIcon image = new ImageIcon(url);
         setIconImage(image.getImage());
         this.setTitle("Tetris");
@@ -59,14 +61,9 @@ public class Mainframe extends JFrame {
             }
         });
 
-        Game_canvas.instanes.repaint();
+        playingPanel.draw_all();
     }
 
-    /**
-     * This method initializes jContentPane
-     *
-     * @return javax.swing.JPanel
-     */
     private JPanel getJContentPane() {
         if (jContentPane == null) {
             jContentPane = new JPanel();
@@ -77,24 +74,14 @@ public class Mainframe extends JFrame {
         return jContentPane;
     }
 
-    /**
-     * This method initializes jPanel
-     *
-     * @return javax.swing.JPanel
-     */
     private JPanel getJPanel() {
-        if (jPanel == null) {
-            jPanel = new Game_canvas();
-            jPanel.setBackground(Color.white);
+        if (playingPanel == null) {
+            playingPanel = new PlayingPanel();
+            playingPanel.setBackground(Color.white);
         }
-        return jPanel;
+        return playingPanel;
     }
 
-    /**
-     * This method initializes jPanel_info
-     *
-     * @return javax.swing.JPanel
-     */
     private JPanel getJPanel_info() {
         if (jPanel_info == null) {
             jLabel_lines = new JLabel();
@@ -124,14 +111,12 @@ public class Mainframe extends JFrame {
             jLabel_level.setSize(new Dimension(110, 23));
             jLabel_level.setLocation(new Point(5, 80));
             jLabel = new JLabel();
-            //jLabel.setText("jedy(c)2009");
             jLabel.setSize(new Dimension(110, 23));
             jLabel.setHorizontalAlignment(SwingConstants.RIGHT);
             jLabel.setLocation(new Point(5, 355));
             jPanel_info = new JPanel();
             jPanel_info.setLayout(null);
             jPanel_info.setPreferredSize(new Dimension(120, 380));
-            //jPanel_info.setBorder(BorderFactory.createLineBorder(Color.black, 1));
             jPanel_info.setBackground(Color.WHITE);
             jPanel_info.add(getJPanel1(), null);
             jPanel_info.add(jLabel, null);
@@ -146,14 +131,9 @@ public class Mainframe extends JFrame {
         return jPanel_info;
     }
 
-    /**
-     * This method initializes jPanel1
-     *
-     * @return javax.swing.JPanel
-     */
     private JPanel getJPanel1() {
         if (jPanel1 == null) {
-            jPanel1 = new Next_figura();
+            jPanel1 = new NextTetriminosPanel();
             jPanel1.setLayout(new GridBagLayout());
             jPanel1.setLocation(new Point(29, 10));
             jPanel1.setBorder(BorderFactory.createLineBorder(Color.black, 1));
@@ -162,11 +142,6 @@ public class Mainframe extends JFrame {
         return jPanel1;
     }
 
-    /**
-     * This method initializes jButton_newgame
-     *
-     * @return javax.swing.JButton
-     */
     private JButton getJButton_newgame() {
         if (jButton_newgame == null) {
             jButton_newgame = new JButton();
@@ -176,18 +151,13 @@ public class Mainframe extends JFrame {
             jButton_newgame.setText("New game");
             jButton_newgame.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
-                    Game.instanes.new_game();
+                    Game.getInstance().new_game();
                 }
             });
         }
         return jButton_newgame;
     }
 
-    /**
-     * This method initializes jToggleButton_pause
-     *
-     * @return javax.swing.JToggleButton
-     */
     private JToggleButton getJToggleButton_pause() {
         if (jToggleButton_pause == null) {
             jToggleButton_pause = new JToggleButton();
@@ -198,8 +168,8 @@ public class Mainframe extends JFrame {
             jToggleButton_pause.addChangeListener(new javax.swing.event.ChangeListener() {
 
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
-                    Game.instanes.tic.pause = jToggleButton_pause.isSelected();
-                    Game.instanes.time.pause = jToggleButton_pause.isSelected();
+                    Game.getInstance().tic.pause = jToggleButton_pause.isSelected();
+                    Game.getInstance().time.pause = jToggleButton_pause.isSelected();
                 }
             });
         }
@@ -212,14 +182,17 @@ public class Mainframe extends JFrame {
         jLabel_level.setText("Level: " + level);
     }
 
-    public void set_time(int h, int m, int s) {
-        String mm = (Integer.toString(m).length() == 1) ? "0" + Integer.toString(m) : Integer.toString(m);
-        String ss = (Integer.toString(s).length() == 1) ? "0" + Integer.toString(s) : Integer.toString(s);
-        jLabel_time.setText("Time: " + h + ":" + mm + ":" + ss);
+    public void setTime(int secondsCount) {
+        String hour = Integer.toString(secondsCount/3600);
+        String minutes = (Integer.toString(secondsCount%3600/60).length() == 1) ? "0" + 
+                Integer.toString(secondsCount%3600/60) : Integer.toString(secondsCount%3600/60);
+        String seconds = (Integer.toString(secondsCount%60).length() == 1) ? "0" + 
+                Integer.toString(secondsCount%60) : Integer.toString(secondsCount%60);
+        jLabel_time.setText("Time: " + hour + ":" + minutes + ":" + seconds);
     }
 
     public void set_record() {
         jLabel_record.setText("Record: " + Recordframe.instance.max_rec);
     }
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}
 

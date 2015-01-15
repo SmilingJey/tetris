@@ -21,7 +21,5 @@ public class Tetris {
         rf.setLocation((screenSize.width - frameSize.width) / 2 + 30,
                 (screenSize.height - frameSize.height) / 2 + 30);
         Mainframe.getInstance().setVisible(true);
-        new Game();
-        Game_canvas.instanes.draw_all();
     }
 }

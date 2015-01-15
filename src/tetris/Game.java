@@ -1,94 +1,76 @@
 package tetris;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
 public class Game {
 
-    public static Game instanes;
+    private static Game instance;
+    
     public Ticker tic = new Ticker();
-    public Timer time = new Timer();
+    public Timer time = new Timer(1000);
     public boolean stop = true;
     int now_level = 1;
-    int level[] = {700, 600, 500, 400, 300, 200, 100};
+    int level[] = {800, 600, 500, 400, 300, 200, 100};
     int score = 0;
     int lines = 0;
-    int cost[] = {100, 500, 1000, 4000};
-    int color[][] = {{0, 0, 0},
-    {172, 211, 115},
-    {109, 207, 249},
-    {116, 124, 82},
-    {237, 20, 97},
-    {135, 129, 189},
-    {253, 198, 137},
-    {255, 242, 0},
-    {237, 20, 97}};
-    public int pole[][] = new int[20][10];
-    public int curr_color = 1;
-    public int curr_figur = 1;
-    public int next_color = 2;
-    public int next_figur = 2;
-    public boolean figura[][][] = {{{false, true, false, false},
-    {false, true, false, false},
-    {false, true, false, false},
-    {false, true, false, false}},
-    {{false, true, false, false},
-    {true, true, true, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{false, true, true, false},
-    {true, true, false, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{true, true, false, false},
-    {false, true, true, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{true, true, false, false},
-    {true, true, false, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{false, true, true, false},
-    {false, true, false, false},
-    {false, true, false, false},
-    {false, false, false, false}},
-    {{true, true, false, false},
-    {false, true, false, false},
-    {false, true, false, false},
-    {false, false, false, false}}};
-    public final boolean buff_figura[][][] = {{{false, true, false, false},
-    {false, true, false, false},
-    {false, true, false, false},
-    {false, true, false, false}},
-    {{false, true, false, false},
-    {true, true, true, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{false, true, true, false},
-    {true, true, false, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{true, true, false, false},
-    {false, true, true, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{true, true, false, false},
-    {true, true, false, false},
-    {false, false, false, false},
-    {false, false, false, false}},
-    {{false, true, true, false},
-    {false, true, false, false},
-    {false, true, false, false},
-    {false, false, false, false}},
-    {{true, true, false, false},
-    {false, true, false, false},
-    {false, true, false, false},
-    {false, false, false, false}}};
-    public int x = 4;
-    public int y = -2;
+    int cost[] = {100, 300, 700, 1500};
 
-    public Game() {
-        instanes = this;
+    public int[][] playingField = new int[20][10];
+    
+    public int currentTetrimonosX = 4;
+    public int currentTetrimonosY = -2;
+    public int currentTetrimonos;
+    public int nextTetrimonos;
+    public boolean[][] currentTetrimonosShape;
+    
+    private boolean[][][] tetriminosShapes = {
+        {
+            {false, false, false, false}, //I
+            {true, true, true, true},
+        },
+        {
+            {true, false, false, false}, //J
+            {true, true, true, true},
+        },
+        {
+            {false, false, true, false}, //L
+            {true, true, true, false},
+        },
+        {
+            {false, true, true, false}, //O
+            {false, true, true, false},
+        },
+        {
+            {false, true, true, false}, //S
+            {true, true, false, false},
+        },
+        {
+            {false, true, false, false}, //T
+            {true, true, true, false},
+        },
+        {
+            {true, true, false, false}, //Z
+            {false, true, true, false},
+        }
+    };
+
+    public int[][] tetriminosColor = {
+        {0x00, 0xf0, 0xf0}, //I
+        {0x00, 0x00, 0xf0}, //J
+        {0xf0, 0xa0, 0x00}, //L
+        {0xf0, 0xf0, 0x00}, //O
+        {0x00, 0xf0, 0x00}, //S
+        {0xa0, 0x00, 0xf0}, //T
+        {0xf0, 0x00, 0x00} //Z
+    };
+    
+    private Game() {
+
+    }
+    
+    public static Game getInstance() {
+        if (instance == null) {
+            instance = new Game();
+        }
+        return instance;
     }
 
     public void down() {
@@ -98,45 +80,40 @@ public class Game {
                 line_analise();
                 next();
             } else {
-                y++;
+                currentTetrimonosY++;
             }
         }
-        Game_canvas.instanes.draw_all();
     }
 
     public void next() {
-        figura = buff_figura;
-        x = 4;
-        y = -2;
-        curr_color = next_color;
-        curr_figur = next_figur;
-        next_figur = (int) (Math.random() * 6.99);
-        next_color = (int) (Math.random() * 6.99) + 1;
-        Next_figura.instanes.repaint();
+        currentTetrimonosX = 4;
+        currentTetrimonosY = -2;
+        currentTetrimonos = nextTetrimonos;
+        currentTetrimonosShape = tetriminosShapes[currentTetrimonos];
+        nextTetrimonos = (int) (Math.random() * 6.99);
+        NextTetriminosPanel.instanes.repaint();
     }
 
     public void right() {
         if (!stop && !tic.pause) {
             if (can_right()) {
-                x++;
+                currentTetrimonosX++;
             }
-            Game_canvas.instanes.draw_all();
         }
-
     }
 
     public boolean can_right() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if ((figura[Game.instanes.curr_figur][i][j]) && x + j <= 9) {
-                    if (y + i < 0 && x + j == 9) {
+                if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j <= 9) {
+                    if (currentTetrimonosY + i < 0 && currentTetrimonosX + j == 9) {
                         return false;
                     } else {
-                        if (y + i >= 0) {
-                            if (x + j == 9) {
+                        if (currentTetrimonosY + i >= 0) {
+                            if (currentTetrimonosX + j == 9) {
                                 return false;
                             }
-                            if (pole[y + i][x + j + 1] != 0) {
+                            if (playingField[currentTetrimonosY + i][currentTetrimonosX + j + 1] != 0) {
                                 return false;
                             }
                         }
@@ -150,15 +127,15 @@ public class Game {
     public boolean can_left() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if ((figura[Game.instanes.curr_figur][i][j]) && x + j >= 0) {
-                    if (y + i < 0 && x + j == 0) {
+                if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j >= 0) {
+                    if (currentTetrimonosY + i < 0 && currentTetrimonosX + j == 0) {
                         return false;
                     } else {
-                        if (y + i >= 0) {
-                            if (x + j == 0) {
+                        if (currentTetrimonosY + i >= 0) {
+                            if (currentTetrimonosX + j == 0) {
                                 return false;
                             }
-                            if (pole[y + i][x + j - 1] != 0) {
+                            if (playingField[currentTetrimonosY + i][currentTetrimonosX + j - 1] != 0) {
                                 return false;
                             }
                         }
@@ -172,20 +149,19 @@ public class Game {
     public void left() {
         if (!stop && !tic.pause) {
             if (can_left()) {
-                x--;
+                currentTetrimonosX--;
             }
-            Game_canvas.instanes.draw_all();
         }
     }
 
     public void rotate() {
         if (!stop && !tic.pause) {
-            if (curr_figur != 4) {
+
                 boolean temp[][] = new boolean[4][4];
                 boolean result[][] = new boolean[4][4];
                 for (int i = 0; i < 4; i++) {
                     for (int j = 0; j < 4; j++) {
-                        temp[i][j] = figura[curr_figur][i][j];
+                        temp[i][j] = currentTetrimonosShape[i][j];
                     }
                 }
                 result[0][0] = temp[0][2];
@@ -210,10 +186,10 @@ public class Game {
                 for (int i = 0; i < 4; i++) {
                     for (int j = 0; j < 4; j++) {
                         if (result[i][j]) {
-                            if (y + i > 19 || x + j < 0 || x + j > 9) {
+                            if (currentTetrimonosY + i > 19 || currentTetrimonosX + j < 0 || currentTetrimonosX + j > 9) {
                                 can_rotate = false;
-                            } else if (y + i >= 0) {
-                                if (pole[y + i][x + j] != 0) {
+                            } else if (currentTetrimonosY + i >= 0) {
+                                if (playingField[currentTetrimonosY + i][currentTetrimonosX + j] != 0) {
                                     can_rotate = false;
                                 }
                             }
@@ -224,12 +200,11 @@ public class Game {
                 if (can_rotate) {
                     for (int i = 0; i < 4; i++) {
                         for (int j = 0; j < 4; j++) {
-                            figura[curr_figur][i][j] = result[i][j];
+                            currentTetrimonosShape[i][j] = result[i][j];
                         }
                     }
-                    Game_canvas.instanes.draw_all();
                 }
-            }
+            
         }
     }
 
@@ -242,11 +217,11 @@ public class Game {
     public boolean bottom() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if ((figura[Game.instanes.curr_figur][i][j]) && y + i >= 0) {
-                    if (y + i >= 19) {
+                if ((currentTetrimonosShape[i][j]) && currentTetrimonosY + i >= 0) {
+                    if (currentTetrimonosY + i >= 19) {
                         return true;
                     }
-                    if (pole[y + i + 1][x + j] != 0) {
+                    if (playingField[currentTetrimonosY + i + 1][currentTetrimonosX + j] != 0) {
                         return true;
                     }
                 }
@@ -258,9 +233,9 @@ public class Game {
     public void flush() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (figura[Game.instanes.curr_figur][i][j]) {
-                    if (y + i >= 0) {
-                        pole[y + i][x + j] = curr_color;
+                if (currentTetrimonosShape[i][j]) {
+                    if (currentTetrimonosY + i >= 0) {
+                        playingField[currentTetrimonosY + i][currentTetrimonosX + j] = currentTetrimonos;
                     } else {
                         end_game();
                     }
@@ -275,7 +250,7 @@ public class Game {
         for (int i = 0; i < 20; i++) {
             len = 0;
             for (int j = 0; j < 10; j++) {
-                if (pole[i][j] != 0) {
+                if (playingField[i][j] != 0) {
                     len++;
                 }
             }
@@ -283,7 +258,7 @@ public class Game {
                 count++;
                 for (int k = i; k >= 0; k--) {
                     for (int l = 0; l < 10; l++) {
-                        pole[k][l] = (k != 0) ? pole[k - 1][l] : 0;
+                        playingField[k][l] = (k != 0) ? playingField[k - 1][l] : 0;
                     }
                 }
             }
@@ -294,7 +269,7 @@ public class Game {
             score += cost[count - 1];
             now_level = (int) (score / 2000) + 1;
             if (now_level < 8) {
-                tic.time = level[now_level - 1];
+                tic.period = level[now_level - 1];
             }
             Mainframe.getInstance().set_labels(score, lines, now_level);
         }
@@ -318,33 +293,30 @@ public class Game {
     }
 
     public void new_game() {
-        x = 4;
-        y = -2;
+        currentTetrimonosX = 4;
+        currentTetrimonosY = -2;
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 10; j++) {
-                pole[i][j] = 0;
+                playingField[i][j] = 0;
             }
         }
         stop = false;
-        curr_figur = (int) (Math.random() * 6.99);
-        curr_color = (int) (Math.random() * 6.99) + 1;
-        next_figur = (int) (Math.random() * 6.99);
-        next_color = (int) (Math.random() * 6.99) + 1;
+        currentTetrimonos = (int) (Math.random() * 6.99);
+        nextTetrimonos = (int) (Math.random() * 6.99);
         tic.stop = true;
         tic = null;
         tic = new Ticker();
         now_level = 1;
-        tic.time = level[now_level - 1];
+        tic.period = level[now_level - 1];
         tic.start();
         time.stop = true;
         time = null;
-        time = new Timer();
         time.start();
         score = 0;
         lines = 0;
         Mainframe.getInstance().set_record();
         Mainframe.getInstance().set_labels(score, lines, now_level);
-        Game_canvas.instanes.draw_all();
-        Next_figura.instanes.repaint();
+        Mainframe.getInstance().redrawPlayingPanel();
+        NextTetriminosPanel.instanes.repaint();
     }
 }

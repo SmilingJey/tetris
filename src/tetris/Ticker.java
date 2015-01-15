@@ -2,7 +2,7 @@ package tetris;
 
 public class Ticker extends Thread {
 
-    int time = 100;
+    int period = 100;
     boolean stop = false;
     boolean pause = false;
 
@@ -13,9 +13,9 @@ public class Ticker extends Thread {
     public void run() {
         try {
             while (!stop) {
-                sleep(time);
+                sleep(period);
                 if (!pause) {
-                    Game.instanes.down();
+                    Game.getInstance().down();
                 }
             }
         } catch (InterruptedException e) {
