@@ -31,7 +31,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(downPressed), downPressed);
         this.getActionMap().put(downPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().down();
+                TetrisEngine.getInstance().moveDown();
                 draw_all();
             }
         });
@@ -41,7 +41,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(upPressed), upPressed);
         this.getActionMap().put(upPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().rotate();
+                TetrisEngine.getInstance().rotate();
                 draw_all();
             }
         });
@@ -51,7 +51,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(leftPressed), leftPressed);
         this.getActionMap().put(leftPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().left();
+                TetrisEngine.getInstance().moveLeft();
                 draw_all();
             }
         });
@@ -61,7 +61,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(rightPressed), rightPressed);
         this.getActionMap().put(rightPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().right();
+                TetrisEngine.getInstance().moveRight();
                 draw_all();
             }
         });
@@ -71,7 +71,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(sPressed), sPressed);
         this.getActionMap().put(sPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().down();
+                TetrisEngine.getInstance().moveDown();
                 draw_all();
             }
         });
@@ -81,7 +81,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(wPressed), wPressed);
         this.getActionMap().put(wPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().rotate();
+                TetrisEngine.getInstance().rotate();
                 draw_all();
             }
         });
@@ -91,7 +91,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(aPressed), aPressed);
         this.getActionMap().put(aPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().left();
+                TetrisEngine.getInstance().moveLeft();
                 draw_all();
             }
         });
@@ -101,7 +101,7 @@ public class PlayingPanel extends JPanel {
                 KeyStroke.getKeyStroke(dPressed), dPressed);
         this.getActionMap().put(dPressed, new AbstractAction() {
             public void actionPerformed(ActionEvent ignored) {
-                Game.getInstance().right();
+                TetrisEngine.getInstance().moveRight();
                 draw_all();
             }
         });
@@ -120,38 +120,32 @@ public class PlayingPanel extends JPanel {
         bufferGraphics2D.fillRect(0, 0, this.getWidth(), this.getHeight());
         bufferGraphics2D.setColor(Color.BLACK);
         bufferGraphics2D.drawRect(0, 0, blockWidth * 10 + 1, blockHeight * 20 + 1);
-        
-        drawExistBlocks(bufferGraphics2D);
-        drawCurrentTetrimonos(bufferGraphics2D);
-        repaint();
-    }
 
-    private void drawExistBlocks(Graphics g) {
+        //draw exist blocks
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 10; j++) {
-                if (Game.getInstance().playingField[i][j] != 0) {
-                    int c = Game.getInstance().playingField[i][j];
-                    g.setColor(Color.BLACK);
-                    g.drawRect(j * blockWidth, i * blockHeight, blockWidth, blockHeight);
-                    g.setColor(new Color(Game.getInstance().tetriminosColor[c][0], Game.getInstance().tetriminosColor[c][1], Game.getInstance().tetriminosColor[c][2]));
-                    g.fillRect(j * blockWidth + 1, i * blockHeight + 1, blockWidth - 2, blockHeight - 2);
+                if (TetrisEngine.getInstance().playingField[i][j] != 0) {
+                    int c = TetrisEngine.getInstance().playingField[i][j];
+                    bufferGraphics2D.setColor(Color.BLACK);
+                    bufferGraphics2D.drawRect(j * blockWidth, i * blockHeight, blockWidth, blockHeight);
+                    bufferGraphics2D.setColor(TetrisEngine.getTetriminosColor(TetrisEngine.getInstance().playingField[i][j]));
+                    bufferGraphics2D.fillRect(j * blockWidth + 1, i * blockHeight + 1, blockWidth - 2, blockHeight - 2);
                 }
             }
         }
-    }
-
-    private void drawCurrentTetrimonos(Graphics g) {
-        for (int i = 0; i < 2; i++) {
+        
+        //draw current tetrimonos
+        for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (Game.getInstance().tetriminosShapes[Game.getInstance().curr_figur][i][j]) {
-                    g.setColor(Color.BLACK);
-                    g.drawRect((Game.getInstance().currentTetrimonosX + j) * blockWidth, (Game.getInstance().currentTetrimonosY + i) * blockHeight, blockWidth, blockHeight);
-                    g.setColor(new Color(Game.getInstance().tetriminosColor[Game.getInstance().curr_color][0],
-                            Game.getInstance().tetriminosColor[Game.getInstance().curr_color][1],
-                            Game.getInstance().tetriminosColor[Game.getInstance().curr_color][2]));
-                    g.fillRect((Game.getInstance().currentTetrimonosX + j) * blockWidth + 1, (Game.getInstance().currentTetrimonosY + i) * blockHeight + 1, blockWidth - 2, blockHeight - 2);
+                if (TetrisEngine.getInstance().tetriminosShapes[TetrisEngine.getInstance().currentTetrimonos][i][j]) {
+                    bufferGraphics2D.setColor(Color.BLACK);
+                    bufferGraphics2D.drawRect((TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth, (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight, blockWidth, blockHeight);
+                    bufferGraphics2D.setColor(TetrisEngine.getTetriminosColor(TetrisEngine.getInstance().currentTetrimonos));
+                    bufferGraphics2D.fillRect((TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth + 1, (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight + 1, blockWidth - 2, blockHeight - 2);
                 }
             }
         }
+
+        repaint();
     }
 }

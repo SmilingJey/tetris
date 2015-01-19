@@ -5,11 +5,13 @@ public class Timer extends Thread {
     public boolean stop = false;
     public boolean pause = false;
     public int tickCount = 0;
-    private int period;
-
-    public Timer(int periodMS){
+    public int period;
+    private Periodic periodicObj;
+    
+    public Timer(Periodic periodicObj, int periodMS){
         super();
         period = periodMS;
+        this.periodicObj = periodicObj;
     }
     
     public void run() {
@@ -18,11 +20,10 @@ public class Timer extends Thread {
                 sleep(period);
                 if (!pause) {
                     tickCount++;
-                    Mainframe.getInstance().setTime(tickCount);
+                    periodicObj.doSomeThing();
                 }
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 }
