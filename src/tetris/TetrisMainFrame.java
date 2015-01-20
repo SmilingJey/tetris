@@ -9,8 +9,12 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import java.awt.Color;
+import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.BufferedReader;
@@ -22,8 +26,9 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.StringTokenizer;
 import javax.swing.ImageIcon;
+import javax.swing.Timer;
 
-public class Mainframe extends JFrame implements Periodic {
+public class TetrisMainFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,7 +46,7 @@ public class Mainframe extends JFrame implements Periodic {
         new Color(0xa0, 0x00, 0xf0), //T
         new Color(0xf0, 0x00, 0x00) //Z
     };
-    private static Mainframe instance;
+    private static TetrisMainFrame instance;
 
     private JPanel contentPanel = null;
     private JPanel playingPanel = null;
@@ -57,23 +62,33 @@ public class Mainframe extends JFrame implements Periodic {
 
     private int hiScore;
     private int gameTime;
+    private ActionListener taskPerformer;
     private Timer timer;
 
-    private Mainframe() {
+    public static void main(String[] args) {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension frameSize = TetrisMainFrame.getInstance().getSize();
+        TetrisMainFrame.getInstance().setLocation((screenSize.width - frameSize.width) / 2,
+                (screenSize.height - frameSize.height) / 2);
+        TetrisMainFrame.getInstance().setVisible(true);
+        TetrisMainFrame.getInstance().repaintPlayingPanel();
+    }
+    
+    private TetrisMainFrame() {
         super();
         initialize();
     }
 
-    public static Mainframe getInstance() {
+    public static TetrisMainFrame getInstance() {
         if (instance == null) {
-            instance = new Mainframe();
+            instance = new TetrisMainFrame();
         }
         return instance;
     }
 
     private void initialize() {
-        this.setSize(310, 400);
-        this.setMinimumSize(new Dimension(310, 400));
+        this.setSize(305, 391);
+        this.setMinimumSize(new Dimension(305, 391));
         this.setContentPane(getJContentPane());
         URL url = this.getClass().getResource("res/icon.png");
         ImageIcon image = new ImageIcon(url);
@@ -106,9 +121,19 @@ public class Mainframe extends JFrame implements Periodic {
             }
         });
 
-        timer = new Timer(this, 1000);
+        taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (!TetrisEngine.getInstance().stop && !pauseLabel.isSelected()) {
+                    gameTime++;
+                    setTime(gameTime);
+                }
+            }
+        };
+        timer = new Timer(1000, taskPerformer);
+        timer.setRepeats(true);
         timer.start();
-
+        
+        
         loadHiScore();
     }
 
@@ -124,8 +149,6 @@ public class Mainframe extends JFrame implements Periodic {
 
     public void repaintPlayingPanel() {
         playingPanel.repaint();
-        
-        System.out.println("34");
     }
 
     public void repaintNextTetriminosPanel() {
@@ -138,15 +161,16 @@ public class Mainframe extends JFrame implements Periodic {
             contentPanel.setLayout(new BorderLayout());
             contentPanel.add(getPlayingPanel(), BorderLayout.WEST);
             contentPanel.add(getInfoPanel(), BorderLayout.CENTER);
+            contentPanel.setBackground(frameBackgroundColor);
         }
         return contentPanel;
     }
 
     private JPanel getPlayingPanel() {
         if (playingPanel == null) {
-            playingPanel = new PlayingPanel();
-            playingPanel.setSize(124, 400);
-            playingPanel.setPreferredSize(new Dimension(124, 400));
+            playingPanel = new TetrisPanel();
+            playingPanel.setSize(186, 400);
+            playingPanel.setPreferredSize(new Dimension(186, 400));
         }
         return playingPanel;
     }
@@ -197,7 +221,25 @@ public class Mainframe extends JFrame implements Periodic {
 
     private JPanel getNextTetriminosPanel() {
         if (nextTetriminosPanel == null) {
-            nextTetriminosPanel = new NextTetriminosPanel();
+            nextTetriminosPanel = new JPanel(){
+                @Override
+                public void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.setColor(TetrisMainFrame.frameBackgroundColor);
+                    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+                    for (int i = 0; i < 4; i++) {
+                        for (int j = 0; j < 4; j++) {
+                            if (TetrisEngine.tetriminosShapes[TetrisEngine.getInstance().nextTetrimonos][i][j]) {
+                                g.setColor(Color.BLACK);
+                                g.drawRect(j * 15, i * 15, 15, 15);
+                                g.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().nextTetrimonos]);
+                                g.fillRect(j * 15 + 1, i * 15 + 1, 14, 14);
+                            }
+                        }
+                    }
+                }
+            };
             nextTetriminosPanel.setLayout(new GridBagLayout());
             nextTetriminosPanel.setLocation(new Point(29, 10));
             nextTetriminosPanel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
@@ -281,13 +323,6 @@ public class Mainframe extends JFrame implements Periodic {
             f.write("hi_score " + hi_score);
             f.close();
         } catch (IOException e) {
-        }
-    }
-
-    public void doSomeThing() {
-        if (!TetrisEngine.getInstance().stop && !pauseLabel.isSelected()) {
-            gameTime++;
-            setTime(gameTime);
         }
     }
 }

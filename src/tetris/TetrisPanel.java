@@ -12,7 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-public class PlayingPanel extends JPanel {
+public class TetrisPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,7 +21,7 @@ public class PlayingPanel extends JPanel {
     private int blockHeight = 0;
     private int blockWidth = 0;
 
-    public PlayingPanel() {
+    public TetrisPanel() {
         super();
         bufferImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 
@@ -29,6 +29,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(downPressed), downPressed);
         this.getActionMap().put(downPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().moveDown();
                 repaint();
@@ -39,6 +40,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(upPressed), upPressed);
         this.getActionMap().put(upPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().rotate();
                 repaint();
@@ -49,6 +51,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(leftPressed), leftPressed);
         this.getActionMap().put(leftPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().moveLeft();
                 repaint();
@@ -59,6 +62,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(rightPressed), rightPressed);
         this.getActionMap().put(rightPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().moveRight();
                 repaint();
@@ -69,6 +73,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(sPressed), sPressed);
         this.getActionMap().put(sPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().moveDown();
                 repaint();
@@ -79,6 +84,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(wPressed), wPressed);
         this.getActionMap().put(wPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().rotate();
                 repaint();
@@ -89,6 +95,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(aPressed), aPressed);
         this.getActionMap().put(aPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().moveLeft();
                 repaint();
@@ -99,6 +106,7 @@ public class PlayingPanel extends JPanel {
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 KeyStroke.getKeyStroke(dPressed), dPressed);
         this.getActionMap().put(dPressed, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent ignored) {
                 TetrisEngine.getInstance().moveRight();
                 repaint();
@@ -106,8 +114,8 @@ public class PlayingPanel extends JPanel {
         });
     }
 
+    @Override
     public void paint(Graphics g) {
-       System.out.println("56");
         super.paint(g);
         bufferImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
         bufferGraphics2D = bufferImage.createGraphics();
@@ -126,10 +134,10 @@ public class PlayingPanel extends JPanel {
         int startX = 2;
         int startY = 2;
         
-        bufferGraphics2D.setColor(Mainframe.frameBackgroundColor);
+        bufferGraphics2D.setColor(TetrisMainFrame.frameBackgroundColor);
         bufferGraphics2D.fillRect(0, 0, this.getWidth(), this.getHeight());
         
-        bufferGraphics2D.setColor(Mainframe.playingPanelColor);
+        bufferGraphics2D.setColor(TetrisMainFrame.playingPanelColor);
         bufferGraphics2D.fillRect(startX+1, startY+1, blockWidth * 10, blockHeight * 20);
         
         //draw exist blocks
@@ -140,7 +148,7 @@ public class PlayingPanel extends JPanel {
                     bufferGraphics2D.setColor(Color.BLACK);
                     bufferGraphics2D.drawRect(startX + j * blockWidth, startY + i * blockHeight, 
                             blockWidth, blockHeight);
-                    bufferGraphics2D.setColor(Mainframe.tetriminosColor[TetrisEngine.getInstance().playingField[i][j]]);
+                    bufferGraphics2D.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().playingField[i][j]]);
                     bufferGraphics2D.fillRect(startX + j * blockWidth + 1, startY + i * blockHeight + 1,
                             blockWidth - 1, blockHeight - 1);
                 }
@@ -155,7 +163,7 @@ public class PlayingPanel extends JPanel {
                     bufferGraphics2D.drawRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth, 
                             startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight, 
                             blockWidth, blockHeight);
-                    bufferGraphics2D.setColor(Mainframe.tetriminosColor[TetrisEngine.getInstance().currentTetrimonos]);
+                    bufferGraphics2D.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().currentTetrimonos]);
                     bufferGraphics2D.fillRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth + 1, 
                             startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight + 1, 
                             blockWidth - 1, blockHeight - 1);
@@ -163,20 +171,19 @@ public class PlayingPanel extends JPanel {
             }
         }
         
-        bufferGraphics2D.setColor(Mainframe.frameBackgroundColor);
+        bufferGraphics2D.setColor(TetrisMainFrame.frameBackgroundColor);
         bufferGraphics2D.fillRect(0, 0, this.getWidth(), startY);
         bufferGraphics2D.setColor(Color.BLACK);
         bufferGraphics2D.drawRect(startX, startY, blockWidth * 10 + 1, blockHeight * 20 + 1);
         
         
         if (TetrisEngine.getInstance().isGameOver()){
-            bufferGraphics2D.setColor(Mainframe.gameOverTextColor);
+            bufferGraphics2D.setColor(TetrisMainFrame.gameOverTextColor);
             bufferGraphics2D.setFont(new Font("Verdana", Font.PLAIN, 46));
             bufferGraphics2D.drawString("GAME", this.getWidth()/2-65, this.getHeight()/2-25);
             bufferGraphics2D.drawString("OVER", this.getWidth()/2-61, this.getHeight()/2+25);
         }
 
         g.drawImage(bufferImage, 0, 0, null);
-        
     }
 }

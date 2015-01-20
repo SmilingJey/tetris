@@ -1,8 +1,11 @@
 package tetris;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
 
-public class TetrisEngine implements Periodic {
+public class TetrisEngine {
 
     public boolean stop = true;
     public boolean pause = false;
@@ -58,6 +61,7 @@ public class TetrisEngine implements Periodic {
 
     private static TetrisEngine instance;
     private Timer timer;
+    private ActionListener taskPerformer;
     private int level = 1;
     private int score = 0;
     private int lines = 0;
@@ -66,6 +70,14 @@ public class TetrisEngine implements Periodic {
     
     private TetrisEngine() {
         nextTetriminos();
+        taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                moveDown();
+            }
+        };
+        timer = new Timer(800, taskPerformer);
+        timer.setRepeats(true);
+        timer.start();
     }
 
     public static TetrisEngine getInstance() {
@@ -93,7 +105,7 @@ public class TetrisEngine implements Periodic {
             }
         }
         nextTetrimonos = (int) (Math.random() * 7) + 1;
-        Mainframe.getInstance().repaintNextTetriminosPanel();
+        TetrisMainFrame.getInstance().repaintNextTetriminosPanel();
     }
 
     public void moveRight() {
@@ -212,23 +224,16 @@ public class TetrisEngine implements Periodic {
         }
     }
 
-    public void doSomeThing() {
-        moveDown();
-    }
-
     public void moveDown() {
         if (!stop && !pause) {
             if (isBottom()) {
                 flush();
                 lineAnalyse();
                 nextTetriminos();
-            } else {
-                currentTetrimonosY++;
-                System.out.println("12");
-            }
+            } else currentTetrimonosY++;
             
-            Mainframe.getInstance().repaintPlayingPanel();
-            Mainframe.getInstance().setScoreLabels(score, lines, level);
+            TetrisMainFrame.getInstance().repaintPlayingPanel();
+            TetrisMainFrame.getInstance().setScoreLabels(score, lines, level);
         }
     }
 
@@ -291,20 +296,16 @@ public class TetrisEngine implements Periodic {
             lines += count;
             score += cost[count - 1];
             level = lines / 10 + 1;
-            if (level < 20) {
-                timer.setPeriod(800 - level * 35);
-            } else {
-                timer.setPeriod(100);
-            }
+            if (level < 20) timer.setDelay(800 - level * 35);
+            else timer.setDelay(100);
         }
     }
 
     public void gameEnd() {
         gameOver = true;
-        timer.interrupt();
         if (!stop) {
-            if (score > Mainframe.getInstance().getHiScore()) {
-                Mainframe.getInstance().setHiScore(score);
+            if (score > TetrisMainFrame.getInstance().getHiScore()) {
+                TetrisMainFrame.getInstance().setHiScore(score);
             }
         }
         stop = true;
@@ -313,14 +314,10 @@ public class TetrisEngine implements Periodic {
     public void newGame() {
         playingField = new int[20][10];
         nextTetriminos();
-        if (timer != null) {
-            timer.interrupt();
-            timer = null;
-        }
-        gameOver = false;
         stop = false;
-        timer = new Timer(this, 800);
-        timer.start();
+        pause = false;
+        gameOver = false;
+        timer.setDelay(800);
         level = 1;
         score = 0;
         lines = 0;
