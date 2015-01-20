@@ -90,7 +90,7 @@ public class TetrisMainFrame extends JFrame {
         this.setSize(305, 391);
         this.setMinimumSize(new Dimension(305, 391));
         this.setContentPane(getJContentPane());
-        URL url = this.getClass().getResource("/icon.png");
+        URL url = this.getClass().getResource("icon.png");
         ImageIcon image = new ImageIcon(url);
         setIconImage(image.getImage());
         this.setTitle("Tetris");
