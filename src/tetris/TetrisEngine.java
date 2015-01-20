@@ -2,93 +2,94 @@ package tetris;
 
 import java.awt.Color;
 
-public class TetrisEngine implements Periodic{
+public class TetrisEngine implements Periodic {
 
     private static TetrisEngine instance;
-    
     public Timer timer;
     public boolean stop = true;
     int level = 1;
     int score = 0;
     int lines = 0;
     int cost[] = {100, 300, 700, 1500};
-
     public int[][] playingField = new int[20][10];
-    
     public int currentTetrimonosX = 4;
     public int currentTetrimonosY = -2;
     public int currentTetrimonos;
     private int nextTetrimonos;
-    
     public boolean[][] currentTetrimonosShape = new boolean[4][4];
-    
+
     public static final boolean[][][] tetriminosShapes = {
+        {
+            {false, false, false, false}, //empty
+            {false, false, false, false},
+            {false, false, false, false},
+            {false, false, false, false},},
         {
             {false, true, false, false}, //I
             {false, true, false, false},
             {false, true, false, false},
-            {false, true, false, false},
-        },
+            {false, true, false, false},},
         {
             {false, true, true, false}, //J
             {false, true, false, false},
             {false, true, false, false},
-            {false, false, false, false},
-            
-        },
+            {false, false, false, false},},
         {
             {false, true, true, false}, //L
             {false, false, true, false},
             {false, false, true, false},
-            {false, false, false, false},
-        },
+            {false, false, false, false},},
         {
-            {false, false, false, false}, //O
-            {false, true, true, false},
+            {false, true, true, false}, //O
             {false, true, true, false},
             {false, false, false, false},
-        },
+            {false, false, false, false},},
         {
             {false, true, true, false}, //S
             {true, true, false, false},
             {false, false, false, false},
-            {false, false, false, false},
-        },
+            {false, false, false, false},},
         {
             {false, true, false, false}, //T
             {true, true, true, false},
             {false, false, false, false},
-            {false, false, false, false},
-        },
+            {false, false, false, false},},
         {
             {true, true, false, false}, //Z
             {false, true, true, false},
             {false, false, false, false},
-            {false, false, false, false},
-        }
+            {false, false, false, false},}
     };
-    
+
     private TetrisEngine() {
-        
+        nextTetriminos();
     }
-    
-    public int getNextTetriminos(){
+
+    public int getNextTetriminos() {
         return nextTetrimonos;
     }
-    
-    public static Color getTetriminosColor(int tetriminos){
+
+    public static Color getTetriminosColor(int tetriminos) {
         switch (tetriminos) {
-            case 0:  return new Color(0x00, 0xf0, 0xf0);   //I
-            case 1:  return new Color(0x00, 0x00, 0xf0);   //J
-            case 2:  return new Color(0xf0, 0xa0, 0x00);   //L
-            case 3:  return new Color(0xf0, 0xf0, 0x00);   //O
-            case 4:  return new Color(0x00, 0xf0, 0x00);   //S
-            case 5:  return new Color(0xa0, 0x00, 0xf0);   //T
-            case 6:  return new Color(0xf0, 0x00, 0x00);   //Z
-            default: return Color.BLACK;
+            case 1:
+                return new Color(0x00, 0xf0, 0xf0);   //I
+            case 2:
+                return new Color(0x00, 0x00, 0xf0);   //J
+            case 3:
+                return new Color(0xf0, 0xa0, 0x00);   //L
+            case 4:
+                return new Color(0xf0, 0xf0, 0x00);   //O
+            case 5:
+                return new Color(0x00, 0xf0, 0x00);   //S
+            case 6:
+                return new Color(0xa0, 0x00, 0xf0);   //T
+            case 7:
+                return new Color(0xf0, 0x00, 0x00);   //Z
+            default:
+                return Color.BLACK;
         }
     }
-    
+
     public static TetrisEngine getInstance() {
         if (instance == null) {
             instance = new TetrisEngine();
@@ -101,12 +102,14 @@ public class TetrisEngine implements Periodic{
         currentTetrimonosY = -2;
         currentTetrimonos = nextTetrimonos;
         currentTetrimonosShape = tetriminosShapes[currentTetrimonos];
-        nextTetrimonos = (int) (Math.random() * 7);
+        nextTetrimonos = (int) (Math.random() * 7) + 1;
     }
-    
+
     public void moveRight() {
-        if (!stop && !timer.pause) {
-            if (canMoveRight()) currentTetrimonosX++;
+        if (!stop && !timer.isPause()) {
+            if (canMoveRight()) {
+                currentTetrimonosX++;
+            }
         }
     }
 
@@ -133,11 +136,13 @@ public class TetrisEngine implements Periodic{
     }
 
     public void moveLeft() {
-        if (!stop && !timer.pause) {
-            if (canMoveLeft()) currentTetrimonosX--;
+        if (!stop && !timer.isPause()) {
+            if (canMoveLeft()) {
+                currentTetrimonosX--;
+            }
         }
     }
-    
+
     private boolean canMoveLeft() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -161,7 +166,9 @@ public class TetrisEngine implements Periodic{
     }
 
     public void rotate() {
-        if (!stop && !timer.pause) {
+        if (!stop && !timer.isPause()) {
+            if (currentTetrimonos == 4) return;
+            
             boolean temp[][] = new boolean[4][4];
             boolean result[][] = new boolean[4][4];
             for (int i = 0; i < 4; i++) {
@@ -210,19 +217,24 @@ public class TetrisEngine implements Periodic{
                 }
             }
         }
-    }  
-    
+    }
+
     public void doSomeThing() {
         moveDown();
     }
-    
+
     public void moveDown() {
-        if (!stop && !timer.pause) {
+        if (!stop && !timer.isPause()) {
             if (isBottom()) {
                 flush();
                 lineAnalyse();
                 nextTetriminos();
-            } else currentTetrimonosY++;
+            } else {
+                currentTetrimonosY++;
+            }
+
+            Mainframe.getInstance().setScoreLabels(score, lines, level);
+            Mainframe.getInstance().repaintPlayingPanel();
         }
     }
 
@@ -284,15 +296,18 @@ public class TetrisEngine implements Periodic{
         if (count != 0) {
             lines += count;
             score += cost[count - 1];
-            level = lines/10 + 1;
-            if (level < 20) timer.period = 800 - level*30;
-            else timer.period = 600;
+            level = lines / 10 + 1;
+            if (level < 20) {
+                timer.setPeriod(800 - level * 30);
+            } else {
+                timer.setPeriod(600);
+            }
             Mainframe.getInstance().setScoreLabels(score, lines, level);
         }
     }
 
     public void gameEnd() {
-        timer.stop = true;
+        timer.interrupt();
         if (!stop) {
             if (score > Mainframe.getInstance().getHiScore()) {
                 Mainframe.getInstance().setHiScore(score);
@@ -302,30 +317,19 @@ public class TetrisEngine implements Periodic{
     }
 
     public void newGame() {
-        currentTetrimonosX = 4;
-        currentTetrimonosY = -2;
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 10; j++) {
-                playingField[i][j] = 0;
-            }
-        }
-
-        currentTetrimonos = (int) (Math.random() * 7);
-        currentTetrimonosShape = tetriminosShapes[currentTetrimonos];
-        
-        nextTetrimonos = (int) (Math.random() * 7);
-        
-        if (timer != null){
-            timer.stop = true;
+        playingField = new int[20][10];
+        nextTetriminos();
+        if (timer != null) {
+            timer.interrupt();
             timer = null;
         }
         stop = false;
-        timer = new Timer(this,800);
+        timer = new Timer(this, 800);
         timer.start();
         level = 1;
         score = 0;
         lines = 0;
         Mainframe.getInstance().setScoreLabels(score, lines, level);
-        Mainframe.getInstance().redrawPlayingPanel();
+        Mainframe.getInstance().repaintPlayingPanel();
     }
 }

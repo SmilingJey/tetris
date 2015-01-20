@@ -11,5 +11,6 @@ public class Tetris {
         Mainframe.getInstance().setLocation((screenSize.width - frameSize.width) / 2,
                 (screenSize.height - frameSize.height) / 2);
         Mainframe.getInstance().setVisible(true);
+        Mainframe.getInstance().repaintPlayingPanel();
     }
 }
