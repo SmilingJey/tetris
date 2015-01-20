@@ -9,14 +9,18 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import javax.swing.BorderFactory;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -25,7 +29,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.StringTokenizer;
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 public class TetrisMainFrame extends JFrame {
@@ -59,7 +66,10 @@ public class TetrisMainFrame extends JFrame {
     private JLabel linesLabel = null;
     private JButton newgameLabel = null;
     private JToggleButton pauseLabel = null;
-
+    private BufferedImage bufferImage;
+    private Graphics2D bufferGraphics2D;
+    private int blockHeight = 0;
+    private int blockWidth = 0;
     private int hiScore;
     private int gameTime;
     private ActionListener taskPerformer;
@@ -133,6 +143,7 @@ public class TetrisMainFrame extends JFrame {
         timer.setRepeats(true);
         timer.start();
         
+        bufferImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         
         loadHiScore();
     }
@@ -168,9 +179,171 @@ public class TetrisMainFrame extends JFrame {
 
     private JPanel getPlayingPanel() {
         if (playingPanel == null) {
-            playingPanel = new TetrisPanel();
+            playingPanel = new JPanel(){
+                @Override
+                public void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    bufferImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+                    bufferGraphics2D = bufferImage.createGraphics();
+
+                    RenderingHints rh = new RenderingHints(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                    bufferGraphics2D.setRenderingHints(rh);
+
+                    blockHeight = (this.getHeight() - 4) / 20;
+                    blockWidth = (this.getWidth() - 4) / 10;
+
+                    if (blockWidth>blockHeight) blockWidth = blockHeight;
+                    else blockHeight = blockWidth;
+
+                    int startX = 2;
+                    int startY = 2;
+
+                    bufferGraphics2D.setColor(TetrisMainFrame.frameBackgroundColor);
+                    bufferGraphics2D.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+                    bufferGraphics2D.setColor(TetrisMainFrame.playingPanelColor);
+                    bufferGraphics2D.fillRect(startX+1, startY+1, blockWidth * 10, blockHeight * 20);
+
+                    //draw exist blocks
+                    for (int i = 0; i < 20; i++) {
+                        for (int j = 0; j < 10; j++) {
+                            if (TetrisEngine.getInstance().playingField[i][j] != 0) {
+                                int c = TetrisEngine.getInstance().playingField[i][j];
+                                bufferGraphics2D.setColor(Color.BLACK);
+                                bufferGraphics2D.drawRect(startX + j * blockWidth, startY + i * blockHeight, 
+                                        blockWidth, blockHeight);
+                                bufferGraphics2D.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().playingField[i][j]]);
+                                bufferGraphics2D.fillRect(startX + j * blockWidth + 1, startY + i * blockHeight + 1,
+                                        blockWidth - 1, blockHeight - 1);
+                            }
+                        }
+                    }
+
+                    //draw current tetrimonos
+                    for (int i = 0; i < 4; i++) {
+                        for (int j = 0; j < 4; j++) {
+                            if (TetrisEngine.getInstance().currentTetrimonosShape[i][j]) {
+                                bufferGraphics2D.setColor(Color.BLACK);
+                                bufferGraphics2D.drawRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth, 
+                                        startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight, 
+                                        blockWidth, blockHeight);
+                                bufferGraphics2D.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().currentTetrimonos]);
+                                bufferGraphics2D.fillRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth + 1, 
+                                        startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight + 1, 
+                                        blockWidth - 1, blockHeight - 1);
+                            }
+                        }
+                    }
+
+                    bufferGraphics2D.setColor(TetrisMainFrame.frameBackgroundColor);
+                    bufferGraphics2D.fillRect(0, 0, this.getWidth(), startY);
+                    bufferGraphics2D.setColor(Color.BLACK);
+                    bufferGraphics2D.drawRect(startX, startY, blockWidth * 10 + 1, blockHeight * 20 + 1);
+
+
+                    if (TetrisEngine.getInstance().isGameOver()){
+                        bufferGraphics2D.setColor(TetrisMainFrame.gameOverTextColor);
+                        bufferGraphics2D.setFont(new Font("Verdana", Font.PLAIN, 46));
+                        bufferGraphics2D.drawString("GAME", this.getWidth()/2-65, this.getHeight()/2-25);
+                        bufferGraphics2D.drawString("OVER", this.getWidth()/2-61, this.getHeight()/2+25);
+                    }
+
+                    g.drawImage(bufferImage, 0, 0, null);
+                    
+                }
+            };
             playingPanel.setSize(186, 400);
             playingPanel.setPreferredSize(new Dimension(186, 400));
+
+            final String downPressed = "pressed DOWN";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(downPressed), downPressed);
+            playingPanel.getActionMap().put(downPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().moveDown();
+                    repaint();
+                }
+            });
+
+            final String upPressed = "pressed UP";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(upPressed), upPressed);
+            playingPanel.getActionMap().put(upPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().rotate();
+                    repaint();
+                }
+            });
+
+            final String leftPressed = "pressed LEFT";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(leftPressed), leftPressed);
+            playingPanel.getActionMap().put(leftPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().moveLeft();
+                    repaint();
+                }
+            });
+
+            final String rightPressed = "pressed RIGHT";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(rightPressed), rightPressed);
+            playingPanel.getActionMap().put(rightPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().moveRight();
+                    repaint();
+                }
+            });
+
+            final String sPressed = "pressed S";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(sPressed), sPressed);
+            playingPanel.getActionMap().put(sPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().moveDown();
+                    repaint();
+                }
+            });
+
+            final String wPressed = "pressed W";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(wPressed), wPressed);
+            playingPanel.getActionMap().put(wPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().rotate();
+                    repaint();
+                }
+            });
+
+            final String aPressed = "pressed A";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(aPressed), aPressed);
+            playingPanel.getActionMap().put(aPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().moveLeft();
+                    repaint();
+                }
+            });
+
+            final String dPressed = "pressed D";
+            playingPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    KeyStroke.getKeyStroke(dPressed), dPressed);
+            playingPanel.getActionMap().put(dPressed, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ignored) {
+                    TetrisEngine.getInstance().moveRight();
+                    repaint();
+                }
+            });
         }
         return playingPanel;
     }
