@@ -22,27 +22,42 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.StringTokenizer;
 import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
 
 public class Mainframe extends JFrame implements Periodic {
 
     private static final long serialVersionUID = 1L;
+
+    public static final Color frameBackgroundColor = new Color(0, 0, 0);
+    public static final Color textColor = new Color(200, 200, 200);
+    public static final Color gameOverTextColor = new Color(255, 255, 255);
+    public static final Color buttonTextColor = new Color(0, 0, 0);
+    public static final Color playingPanelColor = new Color(128, 128, 128);
+    public static final Color[] tetriminosColor = {new Color(0, 0, 0),
+        new Color(0x00, 0xf0, 0xf0), //I
+        new Color(0x00, 0x00, 0xf0), //J
+        new Color(0xf0, 0xa0, 0x00), //L
+        new Color(0xf0, 0xf0, 0x00), //O
+        new Color(0x00, 0xf0, 0x00), //S
+        new Color(0xa0, 0x00, 0xf0), //T
+        new Color(0xf0, 0x00, 0x00) //Z
+    };
     private static Mainframe instance;
-    private JPanel jContentPane = null;
-    private PlayingPanel playingPanel = null;
-    private JPanel jPanel_info = null;
-    private JPanel jNextTetriminosPanel = null;
-    private JLabel jLabel = null;
-    private JLabel jLabel_level = null;
-    private JLabel jLabel_score = null;
-    private JLabel jLabel_time = null;
-    private JButton jButton_newgame = null;
-    private JToggleButton jToggleButton_pause = null;
-    private JLabel jLabel_record = null;
-    private JLabel jLabel_lines = null;
+
+    private JPanel contentPanel = null;
+    private JPanel playingPanel = null;
+    private JPanel infoPanel = null;
+    private JPanel nextTetriminosPanel = null;
+    private JLabel levelLabel = null;
+    private JLabel scoreLabel = null;
+    private JLabel timeLabel = null;
+    private JLabel hiscoreLabel = null;
+    private JLabel linesLabel = null;
+    private JButton newgameLabel = null;
+    private JToggleButton pauseLabel = null;
+
     private int hiScore;
+    private int gameTime;
     private Timer timer;
-    public int gameTime;
 
     private Mainframe() {
         super();
@@ -50,13 +65,15 @@ public class Mainframe extends JFrame implements Periodic {
     }
 
     public static Mainframe getInstance() {
-        if (instance == null) instance = new Mainframe();
+        if (instance == null) {
+            instance = new Mainframe();
+        }
         return instance;
     }
-       
+
     private void initialize() {
-        this.setSize(320, 400);
-        this.setMinimumSize(new Dimension(320, 400));
+        this.setSize(310, 400);
+        this.setMinimumSize(new Dimension(310, 400));
         this.setContentPane(getJContentPane());
         URL url = this.getClass().getResource("res/icon.png");
         ImageIcon image = new ImageIcon(url);
@@ -64,6 +81,10 @@ public class Mainframe extends JFrame implements Periodic {
         this.setTitle("Tetris");
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent e) {
+                int score = TetrisEngine.getInstance().getScore();
+                if (score > getHiScore()) {
+                    setHiScore(score);
+                }
                 System.exit(0);
             }
         });
@@ -71,9 +92,22 @@ public class Mainframe extends JFrame implements Periodic {
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
+                int blockHeight = (contentPanel.getHeight() - 4) / 20;
+                int blockWidth = (contentPanel.getWidth() - 116 - 4) / 10;
+                if (blockWidth > blockHeight) {
+                    blockWidth = blockHeight;
+                } else {
+                    blockHeight = blockWidth;
+                }
+                playingPanel.setSize(blockWidth * 10 + 6, contentPanel.getHeight());
+                playingPanel.setPreferredSize(new Dimension(blockWidth * 10 + 6, contentPanel.getHeight()));
+
                 playingPanel.repaint();
             }
         });
+
+        timer = new Timer(this, 1000);
+        timer.start();
 
         loadHiScore();
     }
@@ -84,137 +118,141 @@ public class Mainframe extends JFrame implements Periodic {
 
     public void setHiScore(int hiScore) {
         this.hiScore = hiScore;
-        jLabel_record.setText("Hi-score: " + hiScore);
+        hiscoreLabel.setText("Hi-score: " + hiScore);
         saveHiScore(hiScore);
     }
 
     public void repaintPlayingPanel() {
         playingPanel.repaint();
-        jNextTetriminosPanel.repaint();
+        
+        System.out.println("34");
+    }
+
+    public void repaintNextTetriminosPanel() {
+        nextTetriminosPanel.repaint();
     }
 
     private JPanel getJContentPane() {
-        if (jContentPane == null) {
-            jContentPane = new JPanel();
-            jContentPane.setLayout(new BorderLayout());
-            jContentPane.add(getPlayingPanel(), BorderLayout.CENTER);
-            jContentPane.add(getJPanel_info(), BorderLayout.EAST);
+        if (contentPanel == null) {
+            contentPanel = new JPanel();
+            contentPanel.setLayout(new BorderLayout());
+            contentPanel.add(getPlayingPanel(), BorderLayout.WEST);
+            contentPanel.add(getInfoPanel(), BorderLayout.CENTER);
         }
-        return jContentPane;
+        return contentPanel;
     }
 
     private JPanel getPlayingPanel() {
         if (playingPanel == null) {
             playingPanel = new PlayingPanel();
-            playingPanel.setBackground(Color.white);
+            playingPanel.setSize(124, 400);
+            playingPanel.setPreferredSize(new Dimension(124, 400));
         }
         return playingPanel;
     }
 
-    private JPanel getJPanel_info() {
-        if (jPanel_info == null) {
-            jLabel_lines = new JLabel();
-            jLabel_lines.setText("Lines: 0");
-            jLabel_lines.setLocation(new Point(2, 105));
-            jLabel_lines.setSize(new Dimension(110, 23));
-            jLabel_record = new JLabel();
-            jLabel_record.setText("Hi-score:");
-            jLabel_record.setSize(new Dimension(110, 23));
-            jLabel_record.setLocation(new Point(2, 155));
-            jLabel_time = new JLabel();
-            jLabel_time.setText("Time: 0:00:00");
-            jLabel_time.setSize(new Dimension(110, 23));
-            jLabel_time.setLocation(new Point(2, 180));
-            jLabel_score = new JLabel();
-            jLabel_score.setText("Score: 0");
-            jLabel_score.setSize(new Dimension(110, 23));
-            jLabel_score.setLocation(new Point(2, 130));
-            jLabel_level = new JLabel();
-            jLabel_level.setText("Level: 0");
-            jLabel_level.setSize(new Dimension(110, 23));
-            jLabel_level.setLocation(new Point(2, 80));
-            jLabel = new JLabel();
-            jLabel.setSize(new Dimension(110, 23));
-            jLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-            jLabel.setLocation(new Point(2, 355));
-            jPanel_info = new JPanel();
-            jPanel_info.setLayout(null);
-            jPanel_info.setPreferredSize(new Dimension(116, 380));
-            jPanel_info.setBackground(Color.WHITE);
-            jPanel_info.add(getNextTetriminosPanel(), null);
-            jPanel_info.add(jLabel, null);
-            jPanel_info.add(jLabel_level, null);
-            jPanel_info.add(jLabel_score, null);
-            jPanel_info.add(jLabel_time, null);
-            jPanel_info.add(getJButtonNewGame(), null);
-            jPanel_info.add(getJToggleButtonPause(), null);
-            jPanel_info.add(jLabel_record, null);
-            jPanel_info.add(jLabel_lines, null);
+    private JPanel getInfoPanel() {
+        if (infoPanel == null) {
+            linesLabel = new JLabel();
+            linesLabel.setText("Lines: 0");
+            linesLabel.setLocation(new Point(2, 105));
+            linesLabel.setSize(new Dimension(110, 23));
+            linesLabel.setForeground(textColor);
+            hiscoreLabel = new JLabel();
+            hiscoreLabel.setText("Hi-score:");
+            hiscoreLabel.setSize(new Dimension(110, 23));
+            hiscoreLabel.setLocation(new Point(2, 155));
+            hiscoreLabel.setForeground(textColor);
+            timeLabel = new JLabel();
+            timeLabel.setText("Time: 0:00:00");
+            timeLabel.setSize(new Dimension(110, 23));
+            timeLabel.setLocation(new Point(2, 180));
+            timeLabel.setForeground(textColor);
+            scoreLabel = new JLabel();
+            scoreLabel.setText("Score: 0");
+            scoreLabel.setSize(new Dimension(110, 23));
+            scoreLabel.setLocation(new Point(2, 130));
+            scoreLabel.setForeground(textColor);
+            levelLabel = new JLabel();
+            levelLabel.setText("Level: 0");
+            levelLabel.setSize(new Dimension(110, 23));
+            levelLabel.setLocation(new Point(2, 80));
+            levelLabel.setForeground(textColor);
+            infoPanel = new JPanel();
+            infoPanel.setLayout(null);
+            infoPanel.setPreferredSize(new Dimension(116, 400));
+            infoPanel.setBackground(Color.WHITE);
+            infoPanel.add(getNextTetriminosPanel(), null);
+            infoPanel.add(levelLabel, null);
+            infoPanel.add(scoreLabel, null);
+            infoPanel.add(timeLabel, null);
+            infoPanel.add(getJButtonNewGame(), null);
+            infoPanel.add(getJToggleButtonPause(), null);
+            infoPanel.add(hiscoreLabel, null);
+            infoPanel.add(linesLabel, null);
+            infoPanel.setBackground(frameBackgroundColor);
         }
-        return jPanel_info;
+        return infoPanel;
     }
 
     private JPanel getNextTetriminosPanel() {
-        if (jNextTetriminosPanel == null) {
-            jNextTetriminosPanel = new NextTetriminosPanel();
-            jNextTetriminosPanel.setLayout(new GridBagLayout());
-            jNextTetriminosPanel.setLocation(new Point(29, 10));
-            jNextTetriminosPanel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-            jNextTetriminosPanel.setSize(new Dimension(65, 65));
+        if (nextTetriminosPanel == null) {
+            nextTetriminosPanel = new NextTetriminosPanel();
+            nextTetriminosPanel.setLayout(new GridBagLayout());
+            nextTetriminosPanel.setLocation(new Point(29, 10));
+            nextTetriminosPanel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+            nextTetriminosPanel.setSize(new Dimension(65, 65));
         }
-        return jNextTetriminosPanel;
+        return nextTetriminosPanel;
     }
 
     private JButton getJButtonNewGame() {
-        if (jButton_newgame == null) {
-            jButton_newgame = new JButton();
-            jButton_newgame.setPreferredSize(new Dimension(110, 26));
-            jButton_newgame.setLocation(new Point(2, 205));
-            jButton_newgame.setSize(new Dimension(110, 30));
-            jButton_newgame.setText("New game");
-            jButton_newgame.addMouseListener(new java.awt.event.MouseAdapter() {
+        if (newgameLabel == null) {
+            newgameLabel = new JButton();
+            newgameLabel.setPreferredSize(new Dimension(110, 26));
+            newgameLabel.setLocation(new Point(2, 205));
+            newgameLabel.setSize(new Dimension(110, 30));
+            newgameLabel.setText("New game");
+            newgameLabel.setForeground(buttonTextColor);
+            newgameLabel.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
+                    pauseLabel.setSelected(false);
+                    TetrisEngine.getInstance().pause = false;
                     TetrisEngine.getInstance().newGame();
-                    if (timer != null) {
-                        timer.interrupt();
-                        timer = null;
-                    }
                     gameTime = 0;
-                    timer = new Timer(Mainframe.getInstance(), 1000);
-                    timer.start();
                 }
             });
         }
-        return jButton_newgame;
+        return newgameLabel;
     }
 
     private JToggleButton getJToggleButtonPause() {
-        if (jToggleButton_pause == null) {
-            jToggleButton_pause = new JToggleButton();
-            jToggleButton_pause.setText("Pause");
-
-            jToggleButton_pause.setSize(new Dimension(110, 30));
-            jToggleButton_pause.setLocation(new Point(2, 240));
-            jToggleButton_pause.addChangeListener(new javax.swing.event.ChangeListener() {
+        if (pauseLabel == null) {
+            pauseLabel = new JToggleButton();
+            pauseLabel.setText("Pause");
+            pauseLabel.setSize(new Dimension(110, 30));
+            pauseLabel.setLocation(new Point(2, 240));
+            pauseLabel.setForeground(buttonTextColor);
+            pauseLabel.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
-                    TetrisEngine.getInstance().timer.pauseTimer(jToggleButton_pause.isSelected());
+                    TetrisEngine.getInstance().pause = pauseLabel.isSelected();
                 }
             });
         }
-        return jToggleButton_pause;
+        return pauseLabel;
     }
 
     public void setScoreLabels(int score, int lines, int level) {
-        jLabel_score.setText("Score: " + score);
-        jLabel_lines.setText("Lines: " + lines);
-        jLabel_level.setText("Level: " + level);
+        scoreLabel.setText("Score: " + score);
+        linesLabel.setText("Lines: " + lines);
+        levelLabel.setText("Level: " + level);
     }
 
     public void setTime(int secondsCount) {
         long second = (secondsCount) % 60;
         long minute = (secondsCount / (60)) % 60;
         long hour = (secondsCount / (60 * 60)) % 24;
-        jLabel_time.setText("Time: " +  String.format("%01d:%02d:%02d", hour, minute, second));
+        timeLabel.setText("Time: " + String.format("%01d:%02d:%02d", hour, minute, second));
     }
 
     public void loadHiScore() {
@@ -229,7 +267,7 @@ public class Mainframe extends JFrame implements Periodic {
                 if (st.countTokens() > 1) {
                     st.nextToken();
                     hiScore = Integer.parseInt(st.nextToken());
-                    jLabel_record.setText("Hi-score: " + hiScore);
+                    hiscoreLabel.setText("Hi-score: " + hiScore);
                 }
             }
         } catch (IOException e) {
@@ -247,7 +285,7 @@ public class Mainframe extends JFrame implements Periodic {
     }
 
     public void doSomeThing() {
-        if (!TetrisEngine.getInstance().stop && !jToggleButton_pause.isSelected()) {
+        if (!TetrisEngine.getInstance().stop && !pauseLabel.isSelected()) {
             gameTime++;
             setTime(gameTime);
         }

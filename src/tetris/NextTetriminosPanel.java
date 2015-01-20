@@ -14,15 +14,15 @@ public class NextTetriminosPanel extends JPanel {
 
     public void paint(Graphics g) {
         super.paint(g);
-        g.setColor(Color.WHITE);
+        g.setColor(Mainframe.frameBackgroundColor);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (TetrisEngine.tetriminosShapes[TetrisEngine.getInstance().getNextTetriminos()][i][j]) {
-                    g.setColor(new Color(0, 0, 0));
+                if (TetrisEngine.tetriminosShapes[TetrisEngine.getInstance().nextTetrimonos][i][j]) {
+                    g.setColor(Color.BLACK);
                     g.drawRect(j * 15, i * 15, 15, 15);
-                    g.setColor(TetrisEngine.getInstance().getTetriminosColor(TetrisEngine.getInstance().getNextTetriminos()));
+                    g.setColor(Mainframe.tetriminosColor[TetrisEngine.getInstance().nextTetrimonos]);
                     g.fillRect(j * 15 + 1, i * 15 + 1, 14, 14);
                 }
             }

@@ -1,12 +1,11 @@
 package tetris;
 
-import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -108,17 +107,30 @@ public class PlayingPanel extends JPanel {
     }
 
     public void paint(Graphics g) {
+       System.out.println("56");
         super.paint(g);
         bufferImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
         bufferGraphics2D = bufferImage.createGraphics();
-        blockHeight = this.getHeight() / 20;
-        blockWidth = this.getWidth() / 10;
+
+        RenderingHints rh = new RenderingHints(
+        RenderingHints.KEY_TEXT_ANTIALIASING,
+        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        bufferGraphics2D.setRenderingHints(rh);
         
+        blockHeight = (this.getHeight() - 4) / 20;
+        blockWidth = (this.getWidth() - 4) / 10;
+        
+        if (blockWidth>blockHeight) blockWidth = blockHeight;
+        else blockHeight = blockWidth;
+
         int startX = 2;
         int startY = 2;
         
-        bufferGraphics2D.setColor(Color.WHITE);
+        bufferGraphics2D.setColor(Mainframe.frameBackgroundColor);
         bufferGraphics2D.fillRect(0, 0, this.getWidth(), this.getHeight());
+        
+        bufferGraphics2D.setColor(Mainframe.playingPanelColor);
+        bufferGraphics2D.fillRect(startX+1, startY+1, blockWidth * 10, blockHeight * 20);
         
         //draw exist blocks
         for (int i = 0; i < 20; i++) {
@@ -128,7 +140,7 @@ public class PlayingPanel extends JPanel {
                     bufferGraphics2D.setColor(Color.BLACK);
                     bufferGraphics2D.drawRect(startX + j * blockWidth, startY + i * blockHeight, 
                             blockWidth, blockHeight);
-                    bufferGraphics2D.setColor(TetrisEngine.getTetriminosColor(TetrisEngine.getInstance().playingField[i][j]));
+                    bufferGraphics2D.setColor(Mainframe.tetriminosColor[TetrisEngine.getInstance().playingField[i][j]]);
                     bufferGraphics2D.fillRect(startX + j * blockWidth + 1, startY + i * blockHeight + 1,
                             blockWidth - 1, blockHeight - 1);
                 }
@@ -138,12 +150,12 @@ public class PlayingPanel extends JPanel {
         //draw current tetrimonos
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (TetrisEngine.tetriminosShapes[TetrisEngine.getInstance().currentTetrimonos][i][j]) {
+                if (TetrisEngine.getInstance().currentTetrimonosShape[i][j]) {
                     bufferGraphics2D.setColor(Color.BLACK);
                     bufferGraphics2D.drawRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth, 
                             startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight, 
                             blockWidth, blockHeight);
-                    bufferGraphics2D.setColor(TetrisEngine.getTetriminosColor(TetrisEngine.getInstance().currentTetrimonos));
+                    bufferGraphics2D.setColor(Mainframe.tetriminosColor[TetrisEngine.getInstance().currentTetrimonos]);
                     bufferGraphics2D.fillRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth + 1, 
                             startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight + 1, 
                             blockWidth - 1, blockHeight - 1);
@@ -151,10 +163,20 @@ public class PlayingPanel extends JPanel {
             }
         }
         
-        bufferGraphics2D.setColor(Color.WHITE);
+        bufferGraphics2D.setColor(Mainframe.frameBackgroundColor);
         bufferGraphics2D.fillRect(0, 0, this.getWidth(), startY);
         bufferGraphics2D.setColor(Color.BLACK);
         bufferGraphics2D.drawRect(startX, startY, blockWidth * 10 + 1, blockHeight * 20 + 1);
+        
+        
+        if (TetrisEngine.getInstance().isGameOver()){
+            bufferGraphics2D.setColor(Mainframe.gameOverTextColor);
+            bufferGraphics2D.setFont(new Font("Verdana", Font.PLAIN, 46));
+            bufferGraphics2D.drawString("GAME", this.getWidth()/2-65, this.getHeight()/2-25);
+            bufferGraphics2D.drawString("OVER", this.getWidth()/2-61, this.getHeight()/2+25);
+        }
+
         g.drawImage(bufferImage, 0, 0, null);
+        
     }
 }
