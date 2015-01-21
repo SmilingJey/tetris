@@ -96,7 +96,7 @@ public class TetrisMainFrame extends JFrame {
         return instance;
     }
     
-    private void initialize() {
+    private void initialize() {  
         this.setSize(305, 391);
         this.setMinimumSize(new Dimension(305, 391));
         this.setContentPane(getJContentPane());
