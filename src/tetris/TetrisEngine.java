@@ -1,6 +1,5 @@
 package tetris;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
@@ -67,7 +66,7 @@ public class TetrisEngine {
     private int lines = 0;
     private final int cost[] = {100, 300, 700, 1500};
     private boolean gameOver = false;
-    
+
     private TetrisEngine() {
         nextTetriminos();
         taskPerformer = new ActionListener() {
@@ -87,14 +86,14 @@ public class TetrisEngine {
         return instance;
     }
 
-    public int getScore(){
+    public int getScore() {
         return score;
     }
-    
-    public boolean isGameOver(){
+
+    public boolean isGameOver() {
         return gameOver;
     }
-    
+
     private void nextTetriminos() {
         currentTetrimonosX = 4;
         currentTetrimonosY = -2;
@@ -230,8 +229,10 @@ public class TetrisEngine {
                 flush();
                 lineAnalyse();
                 nextTetriminos();
-            } else currentTetrimonosY++;
-            
+            } else {
+                currentTetrimonosY++;
+            }
+
             TetrisMainFrame.getInstance().repaintPlayingPanel();
             TetrisMainFrame.getInstance().setScoreLabels(score, lines, level);
         }
@@ -296,8 +297,11 @@ public class TetrisEngine {
             lines += count;
             score += cost[count - 1];
             level = lines / 10 + 1;
-            if (level < 20) timer.setDelay(800 - level * 35);
-            else timer.setDelay(100);
+            if (level < 20) {
+                timer.setDelay(800 - level * 35);
+            } else {
+                timer.setDelay(100);
+            }
         }
     }
 
