@@ -35,7 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
-public class TetrisMainFrame extends JFrame {
+public class TetrisMainFrame extends JFrame{
 
     private static final long serialVersionUID = 1L;
     public static boolean isApplet = false;

@@ -59,8 +59,8 @@ public class TetrisEngine {
     };
 
     private static TetrisEngine instance;
-    private Timer timer;
-    private ActionListener taskPerformer;
+    private final Timer timer;
+    private final ActionListener taskPerformer;
     private int level = 1;
     private int score = 0;
     private int lines = 0;
@@ -86,6 +86,18 @@ public class TetrisEngine {
         return instance;
     }
 
+    public void newGame() {
+        playingField = new int[20][10];
+        nextTetriminos();
+        stop = false;
+        pause = false;
+        gameOver = false;
+        timer.setDelay(800);
+        level = 1;
+        score = 0;
+        lines = 0;
+    }
+
     public int getScore() {
         return score;
     }
@@ -93,20 +105,7 @@ public class TetrisEngine {
     public boolean isGameOver() {
         return gameOver;
     }
-
-    private void nextTetriminos() {
-        currentTetrimonosX = 4;
-        currentTetrimonosY = -2;
-        currentTetrimonos = nextTetrimonos;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                currentTetrimonosShape[i][j] = tetriminosShapes[currentTetrimonos][i][j];
-            }
-        }
-        nextTetrimonos = (int) (Math.random() * 7) + 1;
-        TetrisMainFrame.getInstance().repaintNextTetriminosPanel();
-    }
-
+    
     public void moveRight() {
         if (!stop && !pause) {
             if (canMoveRight()) {
@@ -115,56 +114,12 @@ public class TetrisEngine {
         }
     }
 
-    private boolean canMoveRight() {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j <= 9) {
-                    if (currentTetrimonosY + i < 0 && currentTetrimonosX + j == 9) {
-                        return false;
-                    } else {
-                        if (currentTetrimonosY + i >= 0) {
-                            if (currentTetrimonosX + j == 9) {
-                                return false;
-                            }
-                            if (playingField[currentTetrimonosY + i][currentTetrimonosX + j + 1] != 0) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     public void moveLeft() {
         if (!stop && !pause) {
             if (canMoveLeft()) {
                 currentTetrimonosX--;
             }
         }
-    }
-
-    private boolean canMoveLeft() {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j >= 0) {
-                    if (currentTetrimonosY + i < 0 && currentTetrimonosX + j == 0) {
-                        return false;
-                    } else {
-                        if (currentTetrimonosY + i >= 0) {
-                            if (currentTetrimonosX + j == 0) {
-                                return false;
-                            }
-                            if (playingField[currentTetrimonosY + i][currentTetrimonosX + j - 1] != 0) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return true;
     }
 
     public void rotate() {
@@ -176,9 +131,7 @@ public class TetrisEngine {
             boolean temp[][] = new boolean[4][4];
             boolean result[][] = new boolean[4][4];
             for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    temp[i][j] = currentTetrimonosShape[i][j];
-                }
+                System.arraycopy(currentTetrimonosShape[i], 0, temp[i], 0, 4);
             }
             result[0][0] = temp[0][2];
             result[0][1] = temp[1][2];
@@ -215,9 +168,7 @@ public class TetrisEngine {
 
             if (can_rotate) {
                 for (int i = 0; i < 4; i++) {
-                    for (int j = 0; j < 4; j++) {
-                        currentTetrimonosShape[i][j] = result[i][j];
-                    }
+                    System.arraycopy(result[i], 0, currentTetrimonosShape[i], 0, 4);
                 }
             }
         }
@@ -244,6 +195,51 @@ public class TetrisEngine {
         }
     }
 
+    
+    private boolean canMoveRight() {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j <= 9) {
+                    if (currentTetrimonosY + i < 0 && currentTetrimonosX + j == 9) {
+                        return false;
+                    } else {
+                        if (currentTetrimonosY + i >= 0) {
+                            if (currentTetrimonosX + j == 9) {
+                                return false;
+                            }
+                            if (playingField[currentTetrimonosY + i][currentTetrimonosX + j + 1] != 0) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+        private boolean canMoveLeft() {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j >= 0) {
+                    if (currentTetrimonosY + i < 0 && currentTetrimonosX + j == 0) {
+                        return false;
+                    } else {
+                        if (currentTetrimonosY + i >= 0) {
+                            if (currentTetrimonosX + j == 0) {
+                                return false;
+                            }
+                            if (playingField[currentTetrimonosY + i][currentTetrimonosX + j - 1] != 0) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
     private boolean isBottom() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -260,7 +256,7 @@ public class TetrisEngine {
         return false;
     }
 
-    public void flush() {
+    private void flush() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (currentTetrimonosShape[i][j]) {
@@ -274,7 +270,7 @@ public class TetrisEngine {
         }
     }
 
-    public void lineAnalyse() {
+    private void lineAnalyse() {
         int count = 0;
         int len = 0;
         for (int i = 0; i < 20; i++) {
@@ -305,7 +301,7 @@ public class TetrisEngine {
         }
     }
 
-    public void gameEnd() {
+    private void gameEnd() {
         gameOver = true;
         if (!stop) {
             if (score > TetrisMainFrame.getInstance().getHiScore()) {
@@ -314,16 +310,15 @@ public class TetrisEngine {
         }
         stop = true;
     }
-
-    public void newGame() {
-        playingField = new int[20][10];
-        nextTetriminos();
-        stop = false;
-        pause = false;
-        gameOver = false;
-        timer.setDelay(800);
-        level = 1;
-        score = 0;
-        lines = 0;
+    
+    private void nextTetriminos() {
+        currentTetrimonosX = 4;
+        currentTetrimonosY = -2;
+        currentTetrimonos = nextTetrimonos;
+        for (int i = 0; i < 4; i++) {
+            System.arraycopy(tetriminosShapes[currentTetrimonos][i], 0, currentTetrimonosShape[i], 0, 4);
+        }
+        nextTetrimonos = (int) (Math.random() * 7) + 1;
+        TetrisMainFrame.getInstance().repaintNextTetriminosPanel();
     }
 }
