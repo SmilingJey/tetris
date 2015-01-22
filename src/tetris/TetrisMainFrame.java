@@ -38,7 +38,6 @@ import javax.swing.Timer;
 public class TetrisMainFrame extends JFrame{
 
     private static final long serialVersionUID = 1L;
-    public static boolean isApplet = false;
     public static final Color frameBackgroundColor = new Color(0, 0, 0);
     public static final Color textColor = new Color(200, 200, 200);
     public static final Color gameOverTextColor = new Color(255, 255, 255);
@@ -100,21 +99,17 @@ public class TetrisMainFrame extends JFrame{
         this.setSize(305, 391);
         this.setMinimumSize(new Dimension(305, 391));
         this.setContentPane(getJContentPane());
-        if (!isApplet){
-            URL url = this.getClass().getResource("icon.png");
-            ImageIcon image = new ImageIcon(url);
-            setIconImage(image.getImage());
-        }
+        URL url = this.getClass().getResource("icon.png");
+        ImageIcon image = new ImageIcon(url);
+        setIconImage(image.getImage());
         this.setTitle("Tetris");
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent e) {
-                if (!isApplet){
-                    int score = TetrisEngine.getInstance().getScore();
-                    if (score > getHiScore()) {
-                        setHiScore(score);
-                    }
-                    System.exit(0);
+                int score = TetrisEngine.getInstance().getScore();
+                if (score > getHiScore()) {
+                    setHiScore(score);
                 }
+                System.exit(0);
             }
         });
 
@@ -471,35 +466,31 @@ public class TetrisMainFrame extends JFrame{
     }
 
     public void loadHiScore() {
-        if (!isApplet){
-            File file = new File("tetris_hi_score");
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                String line = reader.readLine();
-                reader.close();
+        File file = new File("tetris_hi_score");
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = reader.readLine();
+            reader.close();
 
-                if (line != null) {
-                    StringTokenizer st = new StringTokenizer(line);
-                    if (st.countTokens() > 1) {
-                        st.nextToken();
-                        hiScore = Integer.parseInt(st.nextToken());
-                        hiscoreLabel.setText("Hi-score: " + hiScore);
-                    }
+            if (line != null) {
+                StringTokenizer st = new StringTokenizer(line);
+                if (st.countTokens() > 1) {
+                    st.nextToken();
+                    hiScore = Integer.parseInt(st.nextToken());
+                    hiscoreLabel.setText("Hi-score: " + hiScore);
                 }
-            } catch (IOException e) {
             }
+        } catch (IOException e) {
         }
     }
 
     public void saveHiScore(int hi_score) {
-        if (!isApplet){
-            File file = new File("tetris_hi_score");
-            try {
-                OutputStreamWriter f = new FileWriter(file);
-                f.write("hi_score " + hi_score);
-                f.close();
-            } catch (IOException e) {
-            }
+        File file = new File("tetris_hi_score");
+        try {
+            OutputStreamWriter f = new FileWriter(file);
+            f.write("hi_score " + hi_score);
+            f.close();
+        } catch (IOException e) {
         }
     }
 }
