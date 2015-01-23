@@ -10,7 +10,7 @@ public class TetrisEngine {
     public boolean pause = false;
     public int[][] playingField = new int[20][10];
     public int currentTetrimonosX = 4;
-    public int currentTetrimonosY = -2;
+    public int currentTetrimonosY = -3;
     public int currentTetrimonos;
     public boolean[][] currentTetrimonosShape = new boolean[4][4];
     public int nextTetrimonos;
@@ -105,7 +105,7 @@ public class TetrisEngine {
     public boolean isGameOver() {
         return gameOver;
     }
-    
+
     public void moveRight() {
         if (!stop && !pause) {
             if (canMoveRight()) {
@@ -195,7 +195,6 @@ public class TetrisEngine {
         }
     }
 
-    
     private boolean canMoveRight() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -217,8 +216,8 @@ public class TetrisEngine {
         }
         return true;
     }
-    
-        private boolean canMoveLeft() {
+
+    private boolean canMoveLeft() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if ((currentTetrimonosShape[i][j]) && currentTetrimonosX + j >= 0) {
@@ -239,7 +238,7 @@ public class TetrisEngine {
         }
         return true;
     }
-    
+
     private boolean isBottom() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -310,10 +309,10 @@ public class TetrisEngine {
         }
         stop = true;
     }
-    
+
     private void nextTetriminos() {
         currentTetrimonosX = 4;
-        currentTetrimonosY = -2;
+        currentTetrimonosY = -3;
         currentTetrimonos = nextTetrimonos;
         for (int i = 0; i < 4; i++) {
             System.arraycopy(tetriminosShapes[currentTetrimonos][i], 0, currentTetrimonosShape[i], 0, 4);

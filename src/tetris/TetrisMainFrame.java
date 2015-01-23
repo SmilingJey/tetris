@@ -35,7 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
-public class TetrisMainFrame extends JFrame{
+public class TetrisMainFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
     public static final Color frameBackgroundColor = new Color(0, 0, 0);
@@ -50,8 +50,8 @@ public class TetrisMainFrame extends JFrame{
         new Color(0xf0, 0xf0, 0x00), //O
         new Color(0x00, 0xf0, 0x00), //S
         new Color(0xa0, 0x00, 0xf0), //T
-        new Color(0xf0, 0x00, 0x00)  //Z
-    };
+        new Color(0xf0, 0x00, 0x00) //Z
+};
     private static TetrisMainFrame instance;
 
     private JPanel contentPanel = null;
@@ -73,7 +73,7 @@ public class TetrisMainFrame extends JFrame{
     private int gameTime;
     private ActionListener taskPerformer;
     private Timer timer;
-    
+
     public static void main(String[] args) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = TetrisMainFrame.getInstance().getSize();
@@ -82,7 +82,7 @@ public class TetrisMainFrame extends JFrame{
         TetrisMainFrame.getInstance().setVisible(true);
         TetrisMainFrame.getInstance().repaintPlayingPanel();
     }
-    
+
     private TetrisMainFrame() {
         super();
         initialize();
@@ -94,8 +94,8 @@ public class TetrisMainFrame extends JFrame{
         }
         return instance;
     }
-    
-    private void initialize() {  
+
+    private void initialize() {
         this.setSize(305, 391);
         this.setMinimumSize(new Dimension(305, 391));
         this.setContentPane(getJContentPane());
@@ -139,9 +139,9 @@ public class TetrisMainFrame extends JFrame{
         timer = new Timer(1000, taskPerformer);
         timer.setRepeats(true);
         timer.start();
-        
+
         bufferImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-        
+
         loadHiScore();
     }
 
@@ -176,7 +176,7 @@ public class TetrisMainFrame extends JFrame{
 
     private JPanel getPlayingPanel() {
         if (playingPanel == null) {
-            playingPanel = new JPanel(){
+            playingPanel = new JPanel() {
                 @Override
                 public void paintComponent(Graphics g) {
                     super.paintComponent(g);
@@ -184,15 +184,18 @@ public class TetrisMainFrame extends JFrame{
                     bufferGraphics2D = bufferImage.createGraphics();
 
                     RenderingHints rh = new RenderingHints(
-                    RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                            RenderingHints.KEY_TEXT_ANTIALIASING,
+                            RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                     bufferGraphics2D.setRenderingHints(rh);
 
                     blockHeight = (this.getHeight() - 4) / 20;
                     blockWidth = (this.getWidth() - 4) / 10;
 
-                    if (blockWidth>blockHeight) blockWidth = blockHeight;
-                    else blockHeight = blockWidth;
+                    if (blockWidth > blockHeight) {
+                        blockWidth = blockHeight;
+                    } else {
+                        blockHeight = blockWidth;
+                    }
 
                     int startX = 2;
                     int startY = 2;
@@ -201,7 +204,7 @@ public class TetrisMainFrame extends JFrame{
                     bufferGraphics2D.fillRect(0, 0, this.getWidth(), this.getHeight());
 
                     bufferGraphics2D.setColor(TetrisMainFrame.playingPanelColor);
-                    bufferGraphics2D.fillRect(startX+1, startY+1, blockWidth * 10, blockHeight * 20);
+                    bufferGraphics2D.fillRect(startX + 1, startY + 1, blockWidth * 10, blockHeight * 20);
 
                     //draw exist blocks
                     for (int i = 0; i < 20; i++) {
@@ -209,7 +212,7 @@ public class TetrisMainFrame extends JFrame{
                             if (TetrisEngine.getInstance().playingField[i][j] != 0) {
                                 int c = TetrisEngine.getInstance().playingField[i][j];
                                 bufferGraphics2D.setColor(Color.BLACK);
-                                bufferGraphics2D.drawRect(startX + j * blockWidth, startY + i * blockHeight, 
+                                bufferGraphics2D.drawRect(startX + j * blockWidth, startY + i * blockHeight,
                                         blockWidth, blockHeight);
                                 bufferGraphics2D.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().playingField[i][j]]);
                                 bufferGraphics2D.fillRect(startX + j * blockWidth + 1, startY + i * blockHeight + 1,
@@ -223,12 +226,12 @@ public class TetrisMainFrame extends JFrame{
                         for (int j = 0; j < 4; j++) {
                             if (TetrisEngine.getInstance().currentTetrimonosShape[i][j]) {
                                 bufferGraphics2D.setColor(Color.BLACK);
-                                bufferGraphics2D.drawRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth, 
-                                        startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight, 
+                                bufferGraphics2D.drawRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth,
+                                        startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight,
                                         blockWidth, blockHeight);
                                 bufferGraphics2D.setColor(TetrisMainFrame.tetriminosColor[TetrisEngine.getInstance().currentTetrimonos]);
-                                bufferGraphics2D.fillRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth + 1, 
-                                        startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight + 1, 
+                                bufferGraphics2D.fillRect(startX + (TetrisEngine.getInstance().currentTetrimonosX + j) * blockWidth + 1,
+                                        startY + (TetrisEngine.getInstance().currentTetrimonosY + i) * blockHeight + 1,
                                         blockWidth - 1, blockHeight - 1);
                             }
                         }
@@ -239,16 +242,15 @@ public class TetrisMainFrame extends JFrame{
                     bufferGraphics2D.setColor(Color.BLACK);
                     bufferGraphics2D.drawRect(startX, startY, blockWidth * 10 + 1, blockHeight * 20 + 1);
 
-
-                    if (TetrisEngine.getInstance().isGameOver()){
+                    if (TetrisEngine.getInstance().isGameOver()) {
                         bufferGraphics2D.setColor(TetrisMainFrame.gameOverTextColor);
                         bufferGraphics2D.setFont(new Font("Verdana", Font.PLAIN, 46));
-                        bufferGraphics2D.drawString("GAME", this.getWidth()/2-65, this.getHeight()/2-25);
-                        bufferGraphics2D.drawString("OVER", this.getWidth()/2-61, this.getHeight()/2+25);
+                        bufferGraphics2D.drawString("GAME", this.getWidth() / 2 - 65, this.getHeight() / 2 - 25);
+                        bufferGraphics2D.drawString("OVER", this.getWidth() / 2 - 61, this.getHeight() / 2 + 25);
                     }
 
                     g.drawImage(bufferImage, 0, 0, null);
-                    
+
                 }
             };
             playingPanel.setSize(186, 400);
@@ -391,7 +393,7 @@ public class TetrisMainFrame extends JFrame{
 
     private JPanel getNextTetriminosPanel() {
         if (nextTetriminosPanel == null) {
-            nextTetriminosPanel = new JPanel(){
+            nextTetriminosPanel = new JPanel() {
                 @Override
                 public void paintComponent(Graphics g) {
                     super.paintComponent(g);
@@ -461,7 +463,7 @@ public class TetrisMainFrame extends JFrame{
     }
 
     public void setTime(int secondsCount) {
-        timeLabel.setText("Time: " + String.format("%01d:%02d:%02d", (secondsCount / (60 * 60)) % 24, 
+        timeLabel.setText("Time: " + String.format("%01d:%02d:%02d", (secondsCount / (60 * 60)) % 24,
                 (secondsCount / (60)) % 60, (secondsCount) % 60));
     }
 
